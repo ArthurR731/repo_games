@@ -12,7 +12,10 @@ const player = {x: 40, y: 160, w: 32, h: 32, vx: 120, vy: 120}
 let last = 0; 
 
 //funcao que atualiza frames, a posição do jogador
-function update(dt){
+function update(dt){ 
+    //dt é o tempo que passou entre um quadro e outro, 
+    //fazendo que o movimento do jogo aconteça baseado no tempo e não na quantidade de frames
+    // se fosse por frames andaria mais rapido em um pc que faz mais frames por segundo (fps)
     player.x += player.vx * dt; 
     //Bater na parede esquerda ou direita = Inverter o sinal do vx
     player.y += player.vy * dt; //Bater na parede cima ou debaixo = Inverter o sinal do vy
