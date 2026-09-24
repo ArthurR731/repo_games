@@ -34,8 +34,12 @@ function draw(){
     //ctx.fillRect(player.x, player.y, player.h, player.w);  NA COR BRANCA
 
     ctx.beginPath(); //começa uma nova forma
-    ctx.arc(player.x + player.w /2, player.y + player.h /2, player.w /2, 0, Math.PI * 2); // ctx.arc(x, y, raio, inicio, fim) ele faz o circulo
-    ctx.fill(); //preencher
+    ctx.arc(player.x + player.w /2, player.y + player.h /2, player.w /2, 0, Math.PI * 2); // ctx.arc(x, y, raio, inicio, fim) ele faz o circulo 
+    // x = onde fica o centro do circulo na horizontal, player.x = começo do jogador e player.w / 2 = metade da largura, 16px depois do inicio(x)
+    // y = onde fica o centro do circulo na vertical, player.y = começo do jogador e player.h / 2 = metade da largura, 16px depois do inicio(y)
+    // raio = distancia entre centro e a borda
+    // inicio = 0 pois comeca no angulo 0
+    // fim = Math.PI * 2 pois 180 graus = pi, pi * 2 = 360 graus
 
     ctx.fillText("O DeltaTime - dt independe da taxa de quadros", 12, 20); //texto dentro do quadro
 
