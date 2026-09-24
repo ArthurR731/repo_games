@@ -40,6 +40,7 @@ function draw(){
     // raio = distancia entre centro e a borda
     // inicio = 0 pois comeca no angulo 0
     // fim = Math.PI * 2 pois 180 graus = pi, pi * 2 = 360 graus
+    ctx.fill();
 
     ctx.fillText("O DeltaTime - dt independe da taxa de quadros", 12, 20); //texto dentro do quadro
 
