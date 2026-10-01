@@ -67,7 +67,7 @@ function spawnApple(){
 function setDirection(x, y){
     if(dir.x + x === 0 && dir.y + y === 0)
         return;
-    nextDir= {x, y}
+    nextDir= {x, y};
 }
 
 //monitora teclas e diz oq fazem
@@ -88,6 +88,36 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
+function tick(){
+    dir = nextDir;
+    const head = {x: snake[0] + dir.x, y: snake[0] + dir.y};
+
+    const hitwall = head.x < 0 || head.y < 0 || head.x >= COLS || head.y >= ROWS
+
+    const hitbody = snake.some((s) => s.x === head && s.y === ROWS);
+
+    if(hitwall || hitbody){
+        state = STATES.OVER;
+
+        if(score > best){
+            best = score;
+
+            localStorage.setItem("snake-best")
+        }
+        return;
+    }
+    snake.unshift(head); //cria nova cabeça
+
+    if(head.x === food.x && head.y === food.y){
+        score += 10;
+        spawnApple(); //comer a maça, não remove o um pedaço da cauda
+    }else{
+        snake.pop(); //não comeu, fila continua
+    }
+}
+
+
+
 
 //funcao que atualiza frames, a posição do jogador
 function update(dt){ 
@@ -105,34 +135,41 @@ function update(dt){
         }
 }
 
+function drawCell(x, y, color){
+    ctx.fillStyle = color;
+    ctx.fillret(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+}
 //Função desenha o personagem, recriando ele a cada movimento 
 function draw(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height); //zera valores quando é redesenhado
-    ctx.fillStyle = "#4ade80"; //cor personagem
-    //ctx.fillRect(player.x, player.y, player.h, player.w); //passa as formas definidas antes RETANGULO
-    
-    // ctx.fillStyle = "#fff";
-    //ctx.fillRect(player.x, player.y, player.h, player.w);  NA COR BRANCA
+    ctx.fillStyle = "#022c22"; //cor personagem
+    ctx.fillRect(0, 0, canvas.width, canvas.height); //passa as formas definidas antes RETANGULO
 
-    ctx.beginPath(); //começa uma nova forma
-    ctx.arc(player.x + player.w /2, player.y + player.h /2, player.w /2, 0, Math.PI * 2); // ctx.arc(x, y, raio, inicio, fim) ele faz o circulo 
-    // x = onde fica o centro do circulo na horizontal, player.x = começo do jogador e player.w / 2 = metade da largura, 16px depois do inicio(x)
-    // y = onde fica o centro do circulo na vertical, player.y = começo do jogador e player.h / 2 = metade da largura, 16px depois do inicio(y)
-    // raio = distancia entre centro e a borda
-    // inicio = 0 pois comeca no angulo 0
-    // fim = Math.PI * 2 pois 180 graus = pi, pi * 2 = 360 graus
-    ctx.fill();
+    drawCell(food.x, food.y, "f#87171");
+    snake.forEach((s, i) => drawCell(s.x, s.y, i === 0 ? "4ade80" : "22c55e" ));
 
-    ctx.fillText("O DeltaTime - dt independe da taxa de quadros", 12, 20); //texto dentro do quadro
-
+    if(state != STATES.PLAYING){
+        ctx.fillStyle = "rgba(15, 23, 42, 0.65)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "f8fafc";
+        ctx.textAlign = "center";
+        ctx.font = "bold 28px Segoe Ui";
+        ctx.fillText(state, canvas.width - 2, canvas.height / 2);
+    }
 }
 
 //funcao de loop, taxa de atualizacao, ts= taxa segundos
 function loop(ts){
-    if(!last) last = ts; // ! = validacao, negação logica
-    const dt = Math.min(0.05, (ts - last)/1000); //1000ms = 1seg. mathmin = pega o menor valor dos numeros, compara 0,05 com (ts - last) / 1000
+
+    const dt = ts - last // ms = seg
     last = ts;
-    update(dt);
+
+    if(state === STATES.PLAYING){
+        acc += dt; 
+        while(acc >= TICKS_MS){
+            tick();
+            acc -= TICKS_MS;
+        }
+    }
     draw();
     requestAnimationFrame(loop);
 }
