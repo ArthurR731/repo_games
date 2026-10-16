@@ -362,7 +362,6 @@ function loop(ts) {
 
     if (state === STATES.PLAYING) {
         acc += dt;
-
         while (acc >= TICKS_MS) {
             tick();
 

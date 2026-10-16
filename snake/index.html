@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crescendo minha cobra</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
     <h1>Crescendo minha cobra</h1>
     <p>Use as setas ou WASD. Pausa: Espaço. Reiniciar: R.</p>
     <div class="HUD">
         <span>Pontos: <strong id="score">0</strong></span>
-        <span>Record: <strong id="snake-best"></strong></span>
+        <span>Record: <strong id="snake-best">0 - ---</strong></span>
         <span>Estado: <strong id="state">PRONTO</strong></span>
     </div>
+
     <canvas id="game" width="330" height="330"></canvas>
-    <p class="hint">Coma as maçãs. Evite as paredes e o próprio corpo</p>
+    <p class="hint">Coma as maçãs. Evite as paredes e o próprio corpo.</p>
+    <p class="hint">Mapa 1: Aberto | Mapa 2: Tático</p>
     <script src="script.js"></script>
+
 </body>
+
 </html>
