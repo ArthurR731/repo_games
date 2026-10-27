@@ -29,37 +29,37 @@ function construirBlocos(){
                 alive: true
             });
         }
-    }
+    }}
 
 //Controle raquete (A, D)
 window.addEventListener( "keydown", (e) => {
-    teclas = [e.key.toLowerCase()] = true;
+    teclas[e.key.toLowerCase()] = true;
     if(e.code === "Space") {
         e.preventDefault();
         running = true
         bola.launched = true
     }
 
-    if(e.key.toLowerCase === "r")
+    if(e.key.toLowerCase() === "r"){
     reset();
-});
+}});
 
 window.addEventListener("keyup", (e) => {
     teclas[e.key.toLowerCase()] = false
 });
 
 //uso do mouse para controle da raquete
-canvas.addEventListener("movemouse", (e) => {
-    const ret = canvas.getBoundingClientRect();
-    paddle.x =  e.clientX - ret.left - paddle.w / 2;
+canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    paddle.x =  e.clientX - rect.left - paddle.w / 2;
     paddle.x = Math.max(8, Math.min(canvas.width - paddle.w - 8, paddle.x))
 });
 
-function resetBola(){
+function resetbola(){
     bola.x = paddle.x + paddle.w / 2;
     bola.y = paddle.y - 14;
     bola.vx = 180 * (Math.random() > 0.5 ? 1 : -1);
-    bola.vy = 240;
+    bola.vy = -540;
     bola.launched = false;
 }
 function reset(){
@@ -67,20 +67,69 @@ function reset(){
     lives = 3;
     running = false;
     construirBlocos();
-    resetBola();
+    resetbola();
 }
 
-function colidirBloco(b){
-    return(
-        bola.x > b.x && 
-        bola.x , b.x + b.w && 
-        bola.y > b.y && 
-        bola.y < b.y + b.h
+function colidirBloco(b) {
+    return (
+        bola.x + bola.r > b.x &&
+        bola.x - bola.r < b.x + b.w &&
+        bola.y + bola.r > b.y &&
+        bola.y - bola.r < b.y + b.h
     );
 }
 
-function update(dt){
+function update(dt) {
+    if (teclas["arrowleft"] || teclas["a"]) paddle.x -= paddle.speed * dt;
+    if (teclas["arrowright"] || teclas["d"]) paddle.x += paddle.speed * dt;
+    paddle.x = Math.max(8, Math.min(canvas.width - paddle.w - 8, paddle.x));
 
+    if (!bola.launched) {
+        bola.x = paddle.x + paddle.w / 2;
+        bola.y = paddle.y - 14;
+        return; // não integra física ainda
+    }
+    if (!running) return;
+
+    bola.x += bola.vx * dt;
+    bola.y += bola.vy * dt;
+
+    if (bola.x < bola.r || bola.x > canvas.width - bola.r) bola.vx *= -1;
+    if (bola.y < bola.r) bola.vy *= -1;
+    if (bola.y - bola.r > canvas.height) {
+        lives -= 1;
+        if (lives <= 0) {
+            running = false;
+            return;
+        }
+        resetbola();
+    }
+
+    if (
+        bola.y + bola.r >= paddle.y &&
+        bola.y + bola.r <= paddle.y + paddle.h &&
+        bola.x > paddle.x &&
+        bola.x < paddle.x + paddle.w &&
+        bola.vy > 0 // só quando a bola ESTÁ DESCENDO
+    ) {
+        const hit = (bola.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+        bola.vx = hit * 260;
+        bola.vy = -Math.abs(bola.vy); // garante que sobe
+    }
+
+    ////Passo 7 — Colisão com tijolo
+    bricks.forEach((b) => {
+        if (b.alive && colidirBloco(b)) {
+            b.alive = false;
+            bola.vy *= -1;
+            score += 10;
+        }
+    });
+
+    if (bricks.every((b) => !b.alive)) {
+        construirBlocos();
+        resetbola();
+    }
 }
 
 function desenhar(){
@@ -127,5 +176,3 @@ function loop(ts){
 
 reset();
 requestAnimationFrame(loop);
-
-}
