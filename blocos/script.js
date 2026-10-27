@@ -14,22 +14,44 @@ let running = false;
 let last = 0;
 
 //construir os blocos
-function construirBlocos(){
 
-    bricks = []
+function construirBlocos() {
+    bricks = [];
+
     const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6"];
+    const pontos = [50, 40, 30, 20, 10];
 
-    for (let row = 0; row < 5; row++) {
-        for (let col = 0; col < 8; col++) {
+    // Layout autoral: pirâmide com buraco central e corredor lateral.
+    // O jogador arrisca a bola no topo porque os tijolos superiores valem mais pontos,
+    // mas exigem mais precisão para alcançar.
+
+    const layout = [
+        [0, 1, 2, 5, 6, 7],
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [0, 1, 2, 3, 4, 5, 6, 7]
+    ];
+
+    for (let row = 0; row < layout.length; row++) {
+        for (let col of layout[row]) {
+            // Corredor vertical na coluna 3, nas três primeiras fileiras
+            if (col === 3 && row < 3) continue;
+
             bricks.push({
-                x: 16 + col*58,
-                y: 40 + row*28,
-                w: 52, h: 20,
+                x: 16 + col * 58,
+                y: 40 + row * 28,
+                w: 52,
+                h: 20,
                 color: colors[row],
+                pontos: pontos[row],
+                hp: (row === 0 && col === 2) ? 2 : 1,
                 alive: true
             });
         }
-    }}
+    }
+}
+
 
 //Controle raquete (A, D)
 window.addEventListener( "keydown", (e) => {
@@ -58,8 +80,8 @@ canvas.addEventListener("mousemove", (e) => {
 function resetbola(){
     bola.x = paddle.x + paddle.w / 2;
     bola.y = paddle.y - 14;
-    bola.vx = 180 * (Math.random() > 0.5 ? 1 : -1);
-    bola.vy = -540;
+    bola.vx = 300 * (Math.random() > 0.5 ? 1 : -1);
+    bola.vy = -600;
     bola.launched = false;
 }
 function reset(){
@@ -118,13 +140,17 @@ function update(dt) {
     }
 
     ////Passo 7 — Colisão com tijolo
-    bricks.forEach((b) => {
-        if (b.alive && colidirBloco(b)) {
+    for (const b of bricks) {
+    if (b.alive && colidirBloco(b)) {
+        b.hp--;
+        if (b.hp <= 0) {
             b.alive = false;
-            bola.vy *= -1;
-            score += 10;
+            score += b.pontos;
         }
-    });
+        bola.vy *= -1;
+        break;
+    }
+}
 
     if (bricks.every((b) => !b.alive)) {
         construirBlocos();
@@ -142,7 +168,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fill();
     bricks.forEach((b) => {
         if (!b.alive) return;
-        ctx.fillStyle = b.color;
+        ctx.fillStyle = b.hp === 2 ? "#a855f7" : b.color;
         ctx.fillRect(b.x, b.y, b.w, b.h);
     });
     ctx.fillStyle = "#e5e7eb";
