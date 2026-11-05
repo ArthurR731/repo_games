@@ -160,7 +160,7 @@ function update(dt) {
 
 function desenhar(){
 ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#fbbf24";
+    ctx.fillStyle = "#fb2424";
     ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
     ctx.beginPath();
     ctx.fillStyle = "#f8fafc";
